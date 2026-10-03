@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwiftClipps — Clips &amp; Auto Captions</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Bangers&family=Luckiest+Guy&family=Montserrat:wght@800&family=Oswald:wght@700&family=Permanent+Marker&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070d;--card:#12121c;--line:#24243a;--ac:#7c5cff;--ac2:#ff4d8d;--tx:#f3f3fa;--mut:#8f8fa8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 500px at 50% -10%,#1d1546 0,var(--bg) 60%);color:var(--tx);font-family:Poppins,system-ui,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;max-width:1200px;margin:auto}
+.logo{font-size:1.5rem;font-weight:800;letter-spacing:-.5px}.logo b{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent}
+.tag{color:var(--mut);font-size:.8rem}
+nav{display:flex;gap:6px;justify-content:center;margin:6px auto 18px;background:var(--card);border:1px solid var(--line);padding:5px;border-radius:14px;width:max-content;max-width:94%;overflow:auto}
+nav button{background:none;color:var(--mut);border:0;padding:10px 18px;border-radius:10px;cursor:pointer;font:600 .9rem Poppins;white-space:nowrap}
+nav button.on{background:linear-gradient(90deg,var(--ac),#9a6bff);color:#fff}
+main{max-width:1200px;margin:auto;padding:0 16px 60px}
+section{display:none}section.on{display:block}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.stage,.panel,.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.drop{position:relative;border:2px dashed #34345a;border-radius:14px;padding:16px;text-align:center;margin-bottom:12px}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}.drop small{display:block;color:var(--mut)}
+.cvw{display:flex;justify-content:center;background:#000;border-radius:12px;overflow:hidden}
+canvas{max-width:100%;max-height:540px;width:auto;height:auto}
+.tp{display:flex;gap:10px;align-items:center;margin-top:10px}.tp input{flex:1}.tp span{color:var(--mut);font-size:.8rem;min-width:44px}
+.tp button{width:38px;height:38px;border-radius:50%;border:0;background:var(--ac);color:#fff;cursor:pointer}
+.bar{height:6px;background:#1c1c2c;border-radius:9px;margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.st{color:var(--mut);font-size:.85rem;margin-top:8px;min-height:20px}
+.panel h3{margin:0 0 10px;font-size:.95rem}.panel h3:not(:first-child){margin-top:18px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:.75rem;color:var(--mut);margin:0 0 4px}
+select,input[type=text]{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:#0c0c15;color:var(--tx);font:inherit;font-size:.85rem}
+input[type=range]{width:100%;accent-color:var(--ac)}
+.btn{width:100%;padding:12px;border-radius:12px;border:0;font:700 .9rem Poppins;cursor:pointer;margin-top:10px;color:#fff;background:linear-gradient(90deg,var(--ac),var(--ac2))}
+.btn.alt{background:#1d1d2e;border:1px solid var(--line)}.btn:disabled{opacity:.5;cursor:wait}
+.outs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.oc{background:#0c0c15;border:1px solid var(--line);border-radius:12px;padding:8px}.oc video{width:100%;border-radius:8px;max-height:220px}.oc a{color:#b9a8ff;font-size:.8rem;text-decoration:none;display:block;margin-top:6px}
+.clip{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0c0c15;border:1px solid var(--line);margin-top:8px;padding:10px 12px;border-radius:12px}
+.clip button{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:7px 14px;cursor:pointer}
+.note{background:#1c1633;border:1px solid #33285a;border-radius:12px;padding:12px;font-size:.82rem;margin-top:12px;color:#c9c0ee}
+#ytp{aspect-ratio:16/9;margin-top:12px;border-radius:12px;overflow:hidden}#ytp iframe{width:100%;height:100%}
+</style>
+</head>
+<body>
+<header><div class="logo">Swift<b>Clipps</b></div><div class="tag">Browser mein hi chalta hai • video upload nahi hoti</div></header>
+<nav><button class="on" data-t="cap">Captions Studio</button><button data-t="clip">Clip Maker</button><button data-t="yt">YouTube Planner</button></nav>
+<main>
+<section id="cap" class="on"></section>
+<section id="clip"></section>
+<section id="yt"><div class="box">
+<label>YouTube link</label><input type="text" id="link" placeholder="https://www.youtube.com/watch?v=...">
+<div class="row" style="margin-top:10px"><div><label>Clip length</label><select id="len"><option>5</option><option selected>10</option><option>15</option></select></div>
+<div><label>Kitne clips</label><select id="cnt"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></div></div>
+<button class="btn" id="plan">Clips Plan Karo</button><div id="ytp"></div><div id="plist"></div>
+<div class="note">YouTube video browser se download nahi ho sakti, isliye yahan time-stamps + hooks milte hain. Clips export karne ke liye video file <b>Clip Maker</b> tab mein upload karo.</div></div></section>
+</main>
+
+<script type="module">
+const FONTS=['Anton','Bebas Neue','Bangers','Luckiest Guy','Montserrat','Oswald','Permanent Marker','Poppins'];
+const STY={
+ classic:{n:'Classic Yellow',fill:'#ffe600',sw:.16},
+ clean:{n:'Clean White',fill:'#fff',shadow:1},
+ hormozi:{n:'Hormozi (green word)',fill:'#fff',sw:.18,hi:'#39ff7a'},
+ beast:{n:'Beast (yellow word)',fill:'#fff',sw:.22,hi:'#ffd400',upper:1},
+ neon:{n:'Neon Cyan Glow',fill:'#eaffff',glow:'#00e5ff'},
+ sunset:{n:'Sunset Gradient',grad:['#ffb347','#ff2d78'],sw:.14},
+ box:{n:'Black Box',fill:'#fff',box:'rgba(0,0,0,.78)'},
+ pink:{n:'Pink Pop Box',fill:'#fff',boxHi:'#ff2d78',shadow:1},
+ minimal:{n:'Minimal Subtle',fill:'#fff',box:'rgba(0,0,0,.4)',small:1}};
+const ANIM={pop:'Pop',zoom:'Zoom In',fade:'Fade',slide:'Slide Up',bounce:'Bounce',shake:'Shake',typewriter:'Typewriter',wordpop:'Word by Word',none:'No animation',rand:'Random (har clip alag)'};
+const HOOKS=["Ye part miss mat karna 👀","Isko dhyan se dekho...","Yahan se sab badal gaya!","Kisi ne socha nahi tha ye hoga","Wait for it...","Ye sach hai ya nahi?","Ye trick sab ko pata honi chahiye"];
+const $=s=>document.querySelector(s),f=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+const O=o=>Object.entries(o).map(([k,v])=>`<option value="${k}">${typeof v=='object'?v.n:v}</option>`).join('');
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button,main>section').forEach(e=>e.classList.remove('on'));b.classList.add('on');$('#'+b.dataset.t).classList.add('on')});
+FONTS.forEach(x=>document.fonts.load(`800 40px "${x}"`));
+
+/* ---------- drawing ---------- */
+function wrapW(c,ws,maxW){const sp=c.measureText(' ').width,L=[];let cur={i:[],w:0};
+ ws.forEach((w,i)=>{const wd=c.measureText(w).width;if(cur.i.length&&cur.w+sp+wd>maxW){L.push(cur);cur={i:[],w:0}}cur.w+=(cur.i.length?sp:0)+wd;cur.i.push(i)});L.push(cur);return L}
+const eo=p=>1+2.70158*Math.pow(p-1,3)+1.70158*Math.pow(p-1,2);
+function cap(c,W,H,g,t,o){
+ const st=o.sty,fs=Math.min(W,H)*.085*o.size/100*(st.small?.7:1);
+ c.font=`800 ${fs}px "${o.font}","Segoe UI",sans-serif`;c.textBaseline='middle';
+ const up=st.upper||/Anton|Bebas|Bangers|Luckiest|Oswald/.test(o.font),ws=g.words.map(w=>up?w.w.toUpperCase():w.w),sp=c.measureText(' ').width,lines=wrapW(c,ws,W*.84);
+ const age=t-g.s,p=Math.min(1,Math.max(0,age/.3));let sc=1,dx=0,dy=0,al=1;
+ switch(o.anim){case'pop':sc=.55+.45*eo(p);al=Math.min(1,p*4);break;case'zoom':sc=1.7-.7*p;al=p;break;case'fade':al=p;break;
+ case'slide':dy=(1-p)*(1-p)*110;al=p;break;case'bounce':dy=-Math.abs(Math.sin(p*Math.PI*2.5))*(1-p)*90;break;case'shake':dx=age<.4?Math.sin(age*80)*16*(1-age/.4):0}
+ const lh=fs*1.25,cy=H*({t:.15,m:.5,b:W<H?.72:.86}[o.pos]);
+ c.save();c.globalAlpha=al;c.translate(W/2+dx,cy+dy);c.scale(sc,sc);
+ let shown=o.anim=='typewriter'?Math.floor(age*24):1e9;
+ lines.forEach((ln,li)=>{const y=(li-(lines.length-1)/2)*lh;let x=-ln.w/2;
+  if(st.box){c.fillStyle=st.box;c.beginPath();c.roundRect(x-24,y-lh/2+4,ln.w+48,lh-8,18);c.fill()}
+  ln.i.forEach(i=>{const w=g.words[i],txt=ws[i],wd=c.measureText(txt).width,act=t>=w.s&&t<w.e;let out=txt;
+   if(o.anim=='typewriter'){out=txt.slice(0,Math.max(0,shown));shown-=txt.length+1}
+   if(o.anim=='wordpop'&&t<w.s){x+=wd+sp;return}
+   if(out){c.save();
+    if(o.anim=='wordpop'){const s2=.6+.4*eo(Math.min(1,(t-w.s)/.18));c.translate(x+wd/2,y);c.scale(s2,s2);c.translate(-(x+wd/2),-y)}
+    if(st.boxHi&&act){c.fillStyle=st.boxHi;c.beginPath();c.roundRect(x-12,y-lh/2+8,wd+24,lh-16,14);c.fill()}
+    c.textAlign='left';c.lineJoin='round';
+    if(st.glow){c.shadowColor=st.glow;c.shadowBlur=fs*.5}
+    if(st.shadow){c.shadowColor='rgba(0,0,0,.9)';c.shadowBlur=fs*.25;c.shadowOffsetY=fs*.05}
+    if(st.sw){c.lineWidth=fs*st.sw;c.strokeStyle='#000';c.strokeText(out,x,y)}
+    let fill=st.fill;if(st.grad){fill=c.createLinearGradient(0,y-fs/2,0,y+fs/2);fill.addColorStop(0,st.grad[0]);fill.addColorStop(1,st.grad[1])}
+    if(st.hi&&act)fill=st.hi;c.fillStyle=fill;c.fillText(out,x,y);c.restore()}
+   x+=wd+sp})});
+ c.restore()}
+function hookDraw(c,W,H,txt,age){
+ const fs=Math.min(W,H)*.07;c.font=`${fs}px "Anton","Segoe UI",sans-serif`;c.textBaseline='middle';c.textAlign='center';
+ const ws=txt.split(' '),L=wrapW(c,ws,W*.8),p=Math.min(1,age/.3),al=p*(age>2.2?Math.max(0,(2.6-age)/.4):1),lh=fs*1.3;
+ c.save();c.globalAlpha=Math.max(0,al);c.translate(W/2,H*(W<H?.2:.16)+(1-p)*-70);
+ L.forEach((ln,li)=>{const y=(li-(L.length-1)/2)*lh,t=ln.i.map(i=>ws[i]).join(' '),w=c.measureText(t).width+60,gr=c.createLinearGradient(-w/2,0,w/2,0);
+  gr.addColorStop(0,'#ff2d78');gr.addColorStop(1,'#ff8a3c');c.fillStyle=gr;c.beginPath();c.roundRect(-w/2,y-lh/2+4,w,lh-8,16);c.fill();c.fillStyle='#fff';c.fillText(t,0,y)});
+ c.restore()}
+
+/* ---------- studio ---------- */
+const asr={};
+function studio(root,clips){
+ root.innerHTML=`<div class="grid"><div class="stage">
+ <div class="drop"><input type="file" accept="video/*" data-k="file"><b>📁 Video yahan choose karo</b><small>${clips?'Koi bhi lambi video — usse 5/10/15 sec ke clips ban jayenge':'Chhoti ho ya lambi — poori video par captions lagenge'}</small></div>
+ <div class="cvw"><canvas data-k="cv"></canvas></div>
+ <div class="tp"><button data-k="pp">▶</button><input type="range" min="0" max="1000" value="0" data-k="seek"><span data-k="tm">0:00</span></div>
+ <div class="bar"><i data-k="bar"></i></div><div class="st" data-k="st">Style/animation badlo — preview live update hota hai. Video upload karne se pehle bhi sample dikhta hai.</div>
+ <div class="outs" data-k="out"></div></div>
+ <div class="panel">
+ <h3>🎨 Caption Design</h3>
+ <div class="row"><div><label>Text style</label><select data-k="sty">${O(STY)}</select></div><div><label>Animation</label><select data-k="anim">${O(ANIM)}</select></div>
+ <div><label>Font</label><select data-k="font">${FONTS.map(x=>`<option>${x}</option>`).join('')}</select></div>
+ <div><label>Position</label><select data-k="pos"><option value="b">Neeche</option><option value="m">Beech mein</option><option value="t">Upar</option></select></div>
+ <div><label>Words per line</label><select data-k="wpl"><option value="3">3 words (shorts)</option><option value="5" selected>5 words</option><option value="99">Poori line</option></select></div>
+ <div><label>Text size</label><input type="range" min="60" max="140" value="100" data-k="size"></div></div>
+ <h3>🎞 Video &amp; Export</h3>
+ <div class="row"><div><label>Format</label><select data-k="ori"><option value="p">Portrait 1080×1920</option><option value="l">Landscape 1920×1080</option></select></div>
+ <div><label>Video fit</label><select data-k="fit"><option value="fit">Fit (blur background)</option><option value="fill">Fill (crop)</option></select></div>
+ ${clips?`<div><label>Clip length</label><select data-k="len"><option>5</option><option selected>10</option><option>15</option></select></div>
+ <div><label>Kitne clips</label><select data-k="cnt"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></div>
+ <div style="grid-column:1/3"><label><input type="checkbox" data-k="hk" checked> Har clip ke start mein auto Hook text</label></div>`:''}</div>
+ <h3>🧠 Speech to Text</h3>
+ <div class="row"><div><label>Bolne ki language</label><select data-k="lang"><option value="">Auto detect</option><option value="english">English</option><option value="hindi">Hindi</option></select></div>
+ <div><label>Model</label><select data-k="model"><option value="Xenova/whisper-tiny">Fast (~40MB)</option><option value="Xenova/whisper-base">Better (~80MB)</option></select></div></div>
+ <button class="btn alt" data-k="gen" disabled>1 · Captions Generate Karo</button>
+ <button class="btn" data-k="run" disabled>2 · ${clips?'Clips Export Karo':'Captions ke sath Export Karo'}</button>
+ <div class="note">Export real-time mein hota hai (10 min video = ~10 min) aur tab khula rehna chahiye. Quality: 16 Mbps, audio 192 kbps.</div>
+ </div></div>`;
+ const q=k=>root.querySelector(`[data-k=${k}]`),v=k=>q(k).value,cv=q('cv'),c=cv.getContext('2d'),bg=document.createElement('canvas'),bc=bg.getContext('2d');
+ const vid=document.createElement('video');vid.playsInline=true;vid.preload='auto';
+ let raw=[],groups=[],hook=null,hs=0,cur='pop',ac,src,dest;
+ const st=m=>q('st').textContent=m,SAMPLE={s:0,e:2.6,words:'Yeh aapka caption preview hai'.split(' ').map((w,i)=>({w,s:i*.5,e:i*.5+.5}))};
+ const size=()=>{const p=v('ori')=='p';cv.width=p?1080:1920;cv.height=p?1920:1080};size();q('ori').onchange=size;
+ q('file').onchange=e=>{const fl=e.target.files[0];if(!fl)return;vid.src=URL.createObjectURL(fl);raw=[];groups=[];q('out').innerHTML='';
+  vid.onloadedmetadata=()=>{q('gen').disabled=q('run').disabled=false;vid.currentTime=.1;st('Video ready ('+f(vid.duration)+'). Pehle "Captions Generate Karo" dabao.')}};
+ q('pp').onclick=()=>{if(!vid.src)return;ac&&ac.resume();vid.paused?vid.play():vid.pause()};
+ vid.onplay=()=>q('pp').textContent='⏸';vid.onpause=()=>q('pp').textContent='▶';
+ q('seek').oninput=()=>{if(vid.duration)vid.currentTime=v('seek')/1000*vid.duration};
+ vid.ontimeupdate=()=>{if(vid.duration){q('seek').value=vid.currentTime/vid.duration*1000;q('tm').textContent=f(vid.currentTime)}};
+ const opts=()=>({sty:STY[v('sty')],font:v('font'),anim:v('anim')=='rand'?cur:v('anim'),pos:v('pos'),size:+v('size')});
+ function regroup(){const n=+v('wpl');groups=[];
+  raw.forEach(r=>{const ws=r.t.split(/\s+/).filter(Boolean),tot=ws.reduce((a,w)=>a+w.length+1,0);let tt=r.s;
+   const W=ws.map(w=>{const d=(r.e-r.s)*(w.length+1)/tot,o={w,s:tt,e:tt+d};tt+=d;return o});
+   for(let i=0;i<W.length;i+=n){const gw=W.slice(i,i+n);groups.push({s:gw[0].s,e:gw[gw.length-1].e,words:gw})}})}
+ q('wpl').onchange=regroup;
+ function frame(){requestAnimationFrame(frame);if(!root.classList.contains('on'))return;
+  const W=cv.width,H=cv.height,vw=vid.videoWidth;c.fillStyle='#0a0a14';c.fillRect(0,0,W,H);
+  if(vw){const vh=vid.videoHeight,fit=v('fit')=='fit';
+   if(fit){bg.width=32;bg.height=Math.round(32*H/W);const k=Math.max(bg.width/vw,bg.height/vh);bc.drawImage(vid,(bg.width-vw*k)/2,(bg.height-vh*k)/2,vw*k,vh*k);c.drawImage(bg,0,0,W,H);c.fillStyle='rgba(0,0,0,.45)';c.fillRect(0,0,W,H)}
+   const k=fit?Math.min(W/vw,H/vh):Math.max(W/vw,H/vh);c.drawImage(vid,(W-vw*k)/2,(H-vh*k)/2,vw*k,vh*k)}
+  else{const gr=c.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#241a4d');gr.addColorStop(1,'#3a1740');c.fillStyle=gr;c.fillRect(0,0,W,H)}
+  let t=vid.currentTime,g;
+  if(groups.length&&vw)g=groups.find(x=>t>=x.s&&t<x.e+.05);else{t=(performance.now()/1000)%3;g=SAMPLE}
+  if(g)cap(c,W,H,g,t,opts());
+  if(hook&&vid.currentTime-hs<2.6&&vid.currentTime>=hs)hookDraw(c,W,H,hook,vid.currentTime-hs)}
+ frame();
+ async function transcribe(){
+  const {pipeline}=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2'),mid=v('model');
+  st('AI model load ho raha hai...');
+  asr[mid]=asr[mid]||await pipeline('automatic-speech-recognition',mid,{progress_callback:p=>{if(p.status=='progress')st('Model download: '+Math.round(p.progress)+'%')}});
+  st('Audio decode ho raha hai...');const a=new AudioContext({sampleRate:16000}),buf=await a.decodeAudioData(await (await fetch(vid.src)).arrayBuffer());
+  st('Bolay hue alfaaz likh raha hoon (video ke hisaab se time lagta hai)...');
+  const o={chunk_length_s:30,stride_length_s:5,return_timestamps:true,task:'transcribe'};if(v('lang'))o.language=v('lang');
+  const r=await asr[mid](buf.getChannelData(0),o);a.close();
+  raw=r.chunks.map(x=>({t:x.text.trim(),s:x.timestamp[0],e:x.timestamp[1]??x.timestamp[0]+3})).filter(x=>x.t);regroup();
+  st(raw.length?'Captions tayyar! Play karke preview dekho, style badlo, phir Export karo.':'Koi awaaz nahi mili.')}
+ q('gen').onclick=async()=>{q('gen').disabled=true;try{await transcribe()}catch(e){console.error(e);st('Error: '+e.message)}q('gen').disabled=false};
+ const mkHook=(s,e)=>{const r=raw.find(r=>r.e>s&&r.s<e&&r.t.split(' ').length>=4);return r?r.t.split(' ').slice(0,7).join(' ').toUpperCase()+'...':HOOKS[Math.floor(Math.random()*HOOKS.length)].toUpperCase()};
+ const mime=()=>['video/mp4;codecs=avc1.640028,mp4a.40.2','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+ async function renderRange(s,e,name){
+  if(!ac){ac=new AudioContext();src=ac.createMediaElementSource(vid);dest=ac.createMediaStreamDestination();src.connect(dest);src.connect(ac.destination)}
+  await ac.resume();src.disconnect(ac.destination);vid.pause();vid.currentTime=s;await new Promise(r=>vid.onseeked=r);vid.onseeked=null;
+  const stm=cv.captureStream(30);dest.stream.getAudioTracks().forEach(t=>stm.addTrack(t));
+  const mt=mime(),rec=new MediaRecorder(stm,{mimeType:mt,videoBitsPerSecond:16e6,audioBitsPerSecond:192e3}),parts=[];
+  rec.ondataavailable=x=>parts.push(x.data);const done=new Promise(r=>rec.onstop=r);
+  rec.start();await vid.play();
+  await new Promise(res=>{const chk=()=>{q('bar').style.width=Math.min(100,(vid.currentTime-s)/(e-s)*100)+'%';st(name+' export ho raha hai...');(vid.currentTime>=e-.03||vid.ended)?res():requestAnimationFrame(chk)};chk()});
+  await new Promise(r=>setTimeout(r,200));vid.pause();rec.stop();await done;src.connect(ac.destination);
+  const url=URL.createObjectURL(new Blob(parts,{type:mt})),ext=mt.includes('mp4')?'mp4':'webm';
+  q('out').insertAdjacentHTML('beforeend',`<div class="oc"><video src="${url}" controls></video><a href="${url}" download="${name}.${ext}">⬇ ${name}.${ext}</a></div>`)}
+ q('run').onclick=async()=>{const b=q('run');b.disabled=q('gen').disabled=true;q('out').innerHTML='';
+  try{if(!raw.length)await transcribe();const D=vid.duration,an=Object.keys(ANIM).slice(0,8);
+   const rnd=()=>{cur=v('anim')=='rand'?an[Math.floor(Math.random()*an.length)]:v('anim')};
+   if(!clips){hook=null;rnd();await renderRange(0,D,'swiftclipps_captions')}
+   else{const L=+v('len'),n=Math.max(1,Math.min(+v('cnt'),Math.floor(D/L))),gap=D/n;
+    for(let i=0;i<n;i++){const s=Math.min(i*gap,Math.max(0,D-L)),e=Math.min(D,s+L);rnd();hs=s;hook=q('hk').checked?mkHook(s,e):null;await renderRange(s,e,'swiftclipps_clip'+(i+1))}}
+   hook=null;q('bar').style.width='100%';st('Ho gaya! Neeche preview dekho aur download karo.')}
+  catch(e){console.error(e);st('Error: '+e.message)}b.disabled=q('gen').disabled=false}}
+studio($('#cap'),false);studio($('#clip'),true);
+
+/* ---------- YouTube planner ---------- */
+let pl;const tg=document.createElement('script');tg.src='https://www.youtube.com/iframe_api';document.head.append(tg);
+$('#plan').onclick=()=>{const m=$('#link').value.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([\w-]{11})/);if(!m)return alert('Sahi YouTube link daalo');
+ $('#ytp').innerHTML='<div id="pl"></div>';pl=new YT.Player('pl',{videoId:m[1],events:{onReady:()=>setTimeout(build,800)}})};
+function build(){const d=pl.getDuration(),L=+$('#len').value,n=+$('#cnt').value;if(!d)return setTimeout(build,800);
+ const gap=Math.max(L,(d-L)/n);let h='';
+ for(let i=0;i<n;i++){const s=Math.min(Math.floor(i*gap+gap*.15),Math.max(0,d-L));
+  h+=`<div class="clip"><div><b>Clip ${i+1}</b> • ${f(s)} – ${f(s+L)}<br><small style="color:var(--mut)">Hook: ${HOOKS[i%HOOKS.length]}</small></div><button data-s="${s}">▶ Preview</button></div>`}
+ $('#plist').innerHTML=h;$('#plist').querySelectorAll('button').forEach(b=>b.onclick=()=>{pl.seekTo(+b.dataset.s,true);pl.playVideo();setTimeout(()=>pl.pauseVideo(),L*1000)})}
+</script>
+</body>
+</html>
